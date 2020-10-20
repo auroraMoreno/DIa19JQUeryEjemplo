@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <h1>Departamentos</h1>
+    <table class="table table-striped" id="tabla">
+        <thead>
+            <tr>
+                <th>Numero</th>
+                <th>Nombre</th>
+                <th>Localidad</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <br />
+    <h3 id="mensaje"></h3>
+    <table class="table table-striped" id="tablaEmpleados"></table>
+    <script src="js/jquery-3.5.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script>
+
+        var urlapiDept = "https://apicruddepartamentoscore.azurewebsites.net";
+        var urlapiEmpl = "https://apiempleadosspgs.azurewebsites.net/";
+
+        $(document).ready(function () {
+            cargarDepartamentos();
+
+        });
+
+        function cargarDepartamentos() {
+            var request = "/api/departamentos";
+            $.getJSON(urlapiDept + request, function (data) {
+                $.each(data, function (index, dept) {
+                    var tr = $("<tr>");
+                    var tdnumero = $("<td>", { text: dept.numero });
+                    var btnnombre = $("<button>", {
+                        "class": "btn btn-success",
+                        "text": dept.nombre,
+                        "value": dept.numero
+                    });
+                    var tdlocalidad = $("<td>", { "text": dept.localidad });
+                    tr.append(tdnumero);
+                    tr.append(btnnombre);
+                    tr.append(tdlocalidad);
+                    $("#tabla tbody").append(tr);
+                    btnnombre.click(function () {
+                        var requestEmpleadosDept = "api/Empleados/EmpleadosDepartamento/" + dept.numero;
+                        $.getJSON(urlapiEmpl + requestEmpleadosDept, function (data) {
+                            var frase = "Empleados en el departamento de: " + dept.nombre;
+                            var html = "<thead><tr><th>Id de empleado</th><th>Apellido</th><th>Oficio</th><th>Salario</th>";
+                            html += "</tr></thead>";
+                            html += "<tbody>"
+                            $.each(data, function (index, empleado) {
+                                html += "<tr>";
+                                html += "<td> " + empleado.idEmpleado + "</td>";
+                                html += "<td> " + empleado.apellido + "</td>";
+                                html += "<td> " + empleado.oficio + "</td >";
+                                html += "<td>" + empleado.salario + "</td>";
+                                html += "</tr>";
+                            });
+                            html += "</tbody>"
+                            $("#mensaje").html(frase);
+                            $("#tablaEmpleados").html(html);
+                        });
+
+                    });
+                });
+            });
+        }
+    </script>
+</body>
+</html>
+ 
